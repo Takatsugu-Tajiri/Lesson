@@ -70,11 +70,11 @@ public class UriageDAO {
 	public void insert(Uriage u) {
 		try (Connection con = DriverManager.getConnection(URL, USER, PASS);) {
 
-			String sql = "INSERT INTO uriage (sid,kosu,hi) VALUES(?,?,our)";
+			String sql = "INSERT INTO uriage (sid,kosu,hi) VALUES(?,?,curdate())";
 			PreparedStatement stmt = con.prepareStatement(sql);
 			stmt.setInt(1, u.getSid());
 			stmt.setInt(2, u.getKosu());
-			stmt.setDate(3, u.getHi());
+
 
 			stmt.executeUpdate();
 
@@ -85,4 +85,30 @@ public class UriageDAO {
 		}
 	}
 
+	public ArrayList<Uriage> findBySid(int sid) {
+		ArrayList<Uriage> ulist = new ArrayList<>();
+
+		try (Connection con = DriverManager.getConnection(URL, USER, PASS);) {
+			String sql = "SELECT*FROM uriage where sid=?";
+			PreparedStatement stmt = con.prepareStatement(sql);
+			stmt.setInt(1, sid);
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				int uid = rs.getInt("uid");
+				int kosu = rs.getInt("kosu");
+				Date hi = rs.getDate("hi");
+
+				Uriage u = new Uriage(uid, sid, kosu, hi);
+				ulist.add(u);
+			}
+
+			stmt.close();
+
+		} catch (SQLException e) {
+			System.out.println("findAllエラー" + e.getMessage());
+		}
+
+		return ulist;
+	}
 }
